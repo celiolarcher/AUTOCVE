@@ -4,9 +4,9 @@ This library is intended to be used for allows the search for voting ensembles. 
 
 
 
-In this current version, for a correct use its recomended the use of the Anaconda package.
+In this current version, for proper use, it is recommended to install the library in the Anaconda package.
 
-Besides the use of the py-xgboost library is observed as to give a more stable execution in this library.
+In addition the use of the py-xgboost library is observed as to give a more stable execution in this library.
 
 Example of usage:
 
