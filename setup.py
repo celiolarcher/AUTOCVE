@@ -14,7 +14,7 @@ setup(
     version="1.0",
     package_dir = {'AUTOCVE.util': 'util', 'AUTOCVE': '.'},
     packages=["AUTOCVE","AUTOCVE.util","AUTOCVE.util.custom_methods", "AUTOCVE.util.custom_methods.TPOT"],
-    description= "AUTOCVE is a library aims to find  good voting ensemble configurations consuming little time.",
+    description= "AUTOCVE is a library that aims to find  good voting ensemble configurations consuming little time.",
 
     ext_modules=[AUTOCVE_modulename],
 

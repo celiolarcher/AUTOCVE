@@ -251,7 +251,7 @@ char* AUTOCVEClass::grammar_file_handler(char *grammar_file_param){
     char *grammar_file_return;
 
     if(!strchr(grammar_file_param,'/') && !strchr(grammar_file_param,'\\')){
-        PyObject *autocve_module = PyImport_ImportModule("AUTOCVE");
+        PyObject *autocve_module = PyImport_ImportModule("AUTOCVE.AUTOCVE");
         PyObject *path = PyObject_GetAttrString(autocve_module, "__file__");
         const char *path_char= PyUnicode_AsUTF8(path);
 
