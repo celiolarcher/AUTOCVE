@@ -1,0 +1,146 @@
+<Pipeline> ::= <Classifier> | <Preprocessing> "->" <Classifier>
+<Preprocessing> ::= <FeatureTransformation> | <FeatureSelection>
+
+
+
+
+<FeatureSelection> ::= <UnivariateSelection> | <EvaluationSelection>
+
+
+
+#Verify mutual_info_classif option with methods that needs the p_value returned
+<UnivariateSelection> ::= "sklearn.feature_selection/SelectPercentile(percentile=" <percentile_features> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFpr(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFdr(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFwe(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/VarianceThreshold(threshold=" <threshold_variance> ")" 
+<percentile_features> ::= "CONSTFLOAT(1,100)"
+<score_func_feat_sel> ::= "sklearn.feature_selection/f_classif" | "sklearn.feature_selection/mutual_info_classif" | "sklearn.feature_selection/chi2"
+<p_value_select_feat> ::= "CONSTFLOAT(0.01,0.4)"
+<threshold_variance> ::= "0.0"
+
+
+<EvaluationSelection> ::= "AUTOCVE.util.custom_methods.RFE_Percentile/RFE_Percentile(estimator=" <estimator_selection> ", step=" <step> ",n_features_to_select=" <percentile_features> ")" | "sklearn.feature_selection/SelectFromModel(estimator=" <estimator_selection> ", threshold=" <threshold_feat_imp> ")"
+
+#Traditional RFE doesn't suport n_features_to_select to be relative. Using RFE_Percentile wrapper instead.
+#"sklearn.feature_selection/RFE(estimator=" <estimator_selection> ", step=" <step> ",n_features_to_select=" <n_features_sel> ")" 
+#<n_features_sel> ::= "CONSTFLOAT(1,10)" | "None"
+
+
+<estimator_selection> ::= <DecisionTree> | <LinearModel>
+<step> ::= "CONSTFLOAT(0.001,0.999)"
+<score_method_sel> ::= "'accuracy'" | "'f1_macro'" | "'roc_auc'"
+<threshold_feat_imp> ::= "'median'" | "'mean'" | "None"
+
+
+
+#<FeatureTransformation> ::= <Scaler> | <Normalization> | <Binarize>
+<FeatureTransformation> ::= <Normalization> | <Binarize>
+
+#<Classifier> ::= <Trees> | <NaiveBayes> | <SVM> | <KNN> | <LinearModel>
+<Classifier> ::= <Trees> | <NaiveBayes> | <Scaler> "->" <SVM> | <Scaler> "->" <KNN> | <Scaler> "->" <LinearModel> | <Scaler> "->" <LinearBoost>
+
+
+
+
+<Scaler> ::= "sklearn.preprocessing/StandardScaler(" ")" |  "sklearn.preprocessing/MaxAbsScaler(" ")" | "sklearn.preprocessing/MinMaxScaler(" ")" | "sklearn.preprocessing/RobustScaler(quantile_range=" <quantile_range> ")" 
+<quantile_range> ::= "(" "CONSTFLOAT(5,35)" "," "CONSTFLOAT(65,95)" ")" 
+
+#Doesn't included yet the QuantileTransformer method
+# "sklearn.preprocessing/QuantileTransformer(n_quantiles=" <n_quantiles> ", output_distribution=" <output_distribution> ")"
+<output_distribution> ::= "'uniform'" | "'normal'"
+<n_quantiles> ::= 'CONSTINT(10,200)'
+
+
+
+
+<Normalization> ::= "sklearn.preprocessing/Normalizer(norm=" <norm_normalization> ")"
+<norm_normalization> ::= "'l1'" | "'l2'" | "'max'"
+
+
+
+<Binarize> ::= "sklearn.preprocessing/Binarizer(threshold=" <binarize_data> ")"
+#Attribute to be adjusted by hand (context dependent)
+<binarize_data> ::= "0.0"
+
+
+
+
+<Trees> ::= <DecisionTree> | <EnsembleTree> 
+
+<EnsembleTree> ::= "sklearn.ensemble/RandomForestClassifier(" <forest_args> ", random_state=" <RANDOM_STATE> ")" | "sklearn.ensemble/ExtraTreesClassifier(" <forest_args> ", random_state=" <RANDOM_STATE> ")" | "xgboost/XGBClassifier(" <xgboost_args> ", booster='gbtree', nthread=1, random_state=" <RANDOM_STATE> ", seed=" <RANDOM_STATE> ")"
+
+
+#Change for XGBoost classifier
+#|  "sklearn.ensemble/GradientBoostingClassifier(" <boosting_args> ", random_state=" <RANDOM_STATE> ")" 
+
+
+
+<forest_args> ::= "criterion=" <criterion> ", class_weight=" <class_weight> ", max_depth=" <max_depth_ensemble> ", max_features=" <max_features_splitter> ", n_estimators=" <n_estimators_forest> ", min_samples_leaf=" <min_samples_leaf> ", min_samples_split=" <min_samples_split>
+<max_features_splitter> ::= "CONSTFLOAT(0.01,1)" 
+#<max_features_splitter> ::= "'sqrt'" | "'log2'" | "None" | "CONSTFLOAT(0.01,1)"
+<n_estimators_forest> ::= "CONSTINT(5,50)"
+
+
+<xgboost_args> ::= "learning_rate=" "CONSTFLOAT(0.01,1)" ", objective=" <objective_xgboost> ", max_depth=" <max_depth_ensemble> ", colsample_bytree=" <max_features_splitter> ", n_estimators=" <n_estimators_boosting> ", min_child_weight=" "CONSTINT(1,20)"
+<boosting_args> ::= "learning_rate=" "CONSTFLOAT(0.01,1)" ", loss=" <loss_boost> ", criterion=" <criterion_boost> ", max_depth=" <max_depth_ensemble> ", max_features=" <max_features_splitter> ", n_estimators=" <n_estimators_boosting> ", min_samples_leaf=" <min_samples_leaf> ", min_samples_split=" <min_samples_split>
+<criterion_boost> ::= "'friedman_mse'" | "'mse'" | "'mae'"
+<loss_boost> ::= "'deviance'" | "'exponential'"
+<objective_xgboost> ::= "'reg:linear'" | "'reg:logistic'"
+<n_estimators_boosting> ::= "CONSTINT(20,200)"
+<max_depth_ensemble> ::= "CONSTINT(1,15)"
+
+
+<DecisionTree> ::= "sklearn.tree/DecisionTreeClassifier(" <tree_args> ", random_state=" <RANDOM_STATE> ")"  | "sklearn.tree/ExtraTreeClassifier(" <tree_args> ", random_state=" <RANDOM_STATE> ")" 
+<tree_args> ::= "criterion=" <criterion> ", splitter=" <splitter> ", class_weight=" <class_weight> ", max_depth=" <max_depth_tree> ", min_samples_leaf=" <min_samples_leaf> ", min_samples_split=" <min_samples_split>
+<criterion> ::= "'gini'" | "'entropy'"
+<splitter> ::= "'random'" | "'best'"
+#The class weight "'balanced_subsample'" dont fit in decision trees (include in ensemble trees?)
+<class_weight> ::= "'balanced'" | "None"
+<max_depth_tree> ::= "CONSTINT(1,20)" | "None"
+<min_samples_leaf> ::= "CONSTFLOAT(0.1,0.5)"
+<min_samples_split> ::= "CONSTFLOAT(0.1,0.8)"
+
+
+
+
+
+<NaiveBayes> ::= "sklearn.naive_bayes/GaussianNB(priors=" <class_priors> ")"  | "sklearn.naive_bayes/BernoulliNB(class_prior=" <class_priors> ", alpha=" <smoother> ", binarize=" <binarize_data> ", fit_prior=" <fit_prior> ")"  | "sklearn.naive_bayes/MultinomialNB(class_prior=" <class_priors> ", alpha=" <smoother> ", fit_prior=" <fit_prior> ")" 
+<smoother> ::= "CONSTFLOAT(0,1)"
+<fit_prior> ::= "True" | "False"
+#Attribute to be adjusted by hand (context dependent)
+<class_priors> ::= "None" 
+
+
+
+<SVM> ::= "sklearn.svm/LinearSVC(C=" <C_svm> ", penalty=" <penalty_svm> ", loss=" <loss_svm> ", dual=" <dual> ", tol=" <tolerance_svm> ", random_state=" <RANDOM_STATE> ")" 
+
+#SVM is much expensive for dataset with more than 10.000 samples
+#| "sklearn.svm/SVC(C=" <C_svm> ", kernel=" <kernel> ", max_iter=" <MAX_ITER_SVM> ", random_state=" <RANDOM_STATE> ")"
+
+<kernel> ::= "'rbf', gamma=" "CONSTFLOAT(0.001,1)" | "'poly', degree=" "CONSTINT(2,5)" | "'sigmoid'"
+<C_svm> ::= "CONSTFLOAT(0.001,25)"
+<penalty_svm> ::= "'l1'" | "'l2'"
+<loss_svm> ::= "'hinge'" | "'squared_hinge'"    
+<dual> ::= "True" | "False"
+
+
+
+<KNN> ::= "sklearn.neighbors/KNeighborsClassifier(n_neighbors=" <n_neighbors> ", metric=" <metric_knn> ")" 
+<n_neighbors> ::= "CONSTINT(2,15)"
+<metric_knn> ::= "'manhattan'" | "'euclidean'" | "'chebyshev'"
+#<metric_knn> ::= "'minkowski', p=" "CONSTINT(1,4)"
+
+
+
+<LinearModel> ::= "sklearn.linear_model/LogisticRegression(C=" <C_linear> ", penalty=" <penalty> ", random_state=" <RANDOM_STATE> ")"  | "sklearn.linear_model/PassiveAggressiveClassifier(C=" <C_linear> ", loss=" <loss_passive_agressive> ", random_state=" <RANDOM_STATE> ")" 
+<C_linear> ::= "CONSTFLOAT(0.01,25)"
+<penalty> ::= "'l1', solver='saga'"  | "'l2', solver='sag'"
+<loss_passive_agressive> ::= "'hinge'" | "'squared_hinge'"
+#<solver_linear> ::= "'saga'" | "'liblinear'"
+
+
+<LinearBoost> ::= "xgboost/XGBClassifier(booster='gblinear', alpha=" <l1_reg_xgboost>  ", lambda=" <l2_reg_xgboost> ", nthread=1, random_state=" <RANDOM_STATE> ")"
+<l1_reg_xgboost> ::= "CONSTFLOAT(0,5)"
+<l2_reg_xgboost> ::= "CONSTFLOAT(0,5)"
+
+<RANDOM_STATE> ::= "42"
+<MAX_ITER_SVM> ::= "100000"
+<tolerance_svm> ::= "1e-2"
+

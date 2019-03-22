@@ -1,0 +1,111 @@
+<Pipeline> ::= <Classifier> | <Preprocessing> "->" <Classifier>
+<Preprocessing> ::= <FeatureTransformation> | <FeatureSelection>
+
+
+
+<FeatureSelection> ::= <UnivariateSelection> | <EvaluationSelection>
+
+
+
+#Verify mutual_info_classif option with methods that needs the p_value returned
+<UnivariateSelection> ::= "sklearn.feature_selection/SelectPercentile(percentile=" <percentile_features> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFpr(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFdr(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/SelectFwe(alpha=" <p_value_select_feat> ", score_func=" <score_func_feat_sel> ")"  | "sklearn.feature_selection/VarianceThreshold(threshold=" <threshold_variance> ")" 
+<percentile_features> ::= "CONSTFLOAT(1,100)"
+<score_func_feat_sel> ::= "sklearn.feature_selection/f_classif" | "sklearn.feature_selection/chi2"
+<p_value_select_feat> ::= "CONSTFLOAT(0.01,0.4)"
+<threshold_variance> ::= "0.0"
+
+
+<EvaluationSelection> ::= "AUTOCVE.util.custom_methods.RFE_Percentile/RFE_Percentile(estimator=" <estimator_selection> ", step=" <step> ",n_features_to_select=" <percentile_features> ")" | "sklearn.feature_selection/SelectFromModel(estimator=" <estimator_selection> ", threshold=" <threshold_feat_imp> ")"
+
+#Traditional RFE doesn't suport n_features_to_select to be relative. Using RFE_Percentile wrapper instead.
+#"sklearn.feature_selection/RFE(estimator=" <estimator_selection> ", step=" <step> ",n_features_to_select=" <n_features_sel> ")" 
+#<n_features_sel> ::= "CONSTFLOAT(1,10)" | "None"
+
+
+<estimator_selection> ::= <DecisionTree> | <LinearModel>
+<step> ::= "CONSTFLOAT(0.001,0.999)"
+<score_method_sel> ::= "'accuracy'" | "'f1_macro'" | "'roc_auc'"
+<threshold_feat_imp> ::= "'median'" | "'mean'" | "None"
+
+
+
+#<FeatureTransformation> ::= <Scaler> | <Normalization> | <Binarize>
+<FeatureTransformation> ::= <Normalization> | <Binarize>
+
+#<Classifier> ::= <Trees> | <NaiveBayes> | <SVM> | <KNN> | <LinearModel>
+<Classifier> ::= <Trees> | <NaiveBayes> | <Scaler> "->" <SGD> | <Scaler> "->" <LinearModel> | <Scaler> "->" <KNN>
+
+
+
+
+<Scaler> ::= "sklearn.preprocessing/StandardScaler(" ")" |  "sklearn.preprocessing/MaxAbsScaler(" ")" | "sklearn.preprocessing/MinMaxScaler(" ")" | "sklearn.preprocessing/RobustScaler(quantile_range=" <quantile_range> ")" 
+<quantile_range> ::= "(" "CONSTFLOAT(5,35)" "," "CONSTFLOAT(65,95)" ")" 
+
+#Doesn't included yet the QuantileTransformer method
+# "sklearn.preprocessing/QuantileTransformer(n_quantiles=" <n_quantiles> ", output_distribution=" <output_distribution> ")"
+<output_distribution> ::= "'uniform'" | "'normal'"
+<n_quantiles> ::= 'CONSTINT(10,200)'
+
+
+
+
+<Normalization> ::= "sklearn.preprocessing/Normalizer(norm=" <norm_normalization> ")"
+<norm_normalization> ::= "'l1'" | "'l2'" | "'max'"
+
+
+
+<Binarize> ::= "sklearn.preprocessing/Binarizer(threshold=" <binarize_data> ")"
+#Attribute to be adjusted by hand (context dependent)
+<binarize_data> ::= "0.0"
+
+
+
+
+<Trees> ::= <DecisionTree> 
+
+
+
+<DecisionTree> ::= "sklearn.tree/DecisionTreeClassifier(" <tree_args> ", random_state=" <RANDOM_STATE> ")" | "sklearn.tree/ExtraTreeClassifier(" <tree_args> ", random_state=" <RANDOM_STATE> ")" 
+<tree_args> ::= "criterion=" <criterion> ", splitter=" <splitter> ", class_weight=" <class_weight> ", max_depth=" <max_depth_tree> ", min_samples_leaf=" <min_samples_leaf> ", min_samples_split=" <min_samples_split>
+<criterion> ::= "'gini'" | "'entropy'"
+<splitter> ::= "'random'" | "'best'"
+#The class weight "'balanced_subsample'" dont fit in decision trees (include in ensemble trees?)
+<class_weight> ::= "'balanced'" | "None"
+<max_depth_tree> ::= "CONSTINT(1,20)" | "None"
+<min_samples_leaf> ::= "CONSTFLOAT(0.1,0.5)"
+<min_samples_split> ::= "CONSTFLOAT(0.1,0.8)"
+
+
+
+
+
+<NaiveBayes> ::= "sklearn.naive_bayes/GaussianNB(priors=" <class_priors> ")"  | "sklearn.naive_bayes/BernoulliNB(class_prior=" <class_priors> ", alpha=" <smoother> ", binarize=" <binarize_data> ", fit_prior=" <fit_prior> ")"  | "sklearn.naive_bayes/MultinomialNB(class_prior=" <class_priors> ", alpha=" <smoother> ", fit_prior=" <fit_prior> ")" 
+<smoother> ::= "CONSTFLOAT(0,1)"
+<fit_prior> ::= "True" | "False"
+#Attribute to be adjusted by hand (context dependent)
+<class_priors> ::= "None" 
+
+
+
+<SGD> ::= "sklearn.linear_model/SGDClassifier(loss=" <loss_sgd> ", penalty=" <penalty_sgd> ", alpha=" <alpha> ", class_weight=" <class_weight> ", random_state=" <RANDOM_STATE> ")"
+<penalty_sgd> ::= "'l2'" | "'l1'" | "'elasticnet', l1_ratio=" <l1_ration>
+<l1_ration> ::= "CONSTFLOAT(0.1, 0.9)"
+<loss_sgd> ::= "'hinge'" | "'log'" | "'modified_huber'" | "'squared_hinge'" | "'perceptron'"
+<alpha> ::= "CONSTFLOAT(0.001,25)"
+
+
+<KNN> ::= "sklearn.neighbors/NearestCentroid(metric=" <metric_knn> ", shrink_threshold=" <shrink_threshold> ")"
+<metric_knn> ::= "'manhattan'" | "'euclidean'" | "'chebyshev'"
+<shrink_threshold> ::= "CONSTFLOAT(0,1)"
+
+
+<LinearModel> ::= "sklearn.linear_model/LogisticRegression(C=" <C_linear> ", penalty=" <penalty> ", random_state=" <RANDOM_STATE> ")"  | "sklearn.linear_model/PassiveAggressiveClassifier(C=" <C_linear> ", loss=" <loss_passive_agressive> ", random_state=" <RANDOM_STATE> ")" 
+<C_linear> ::= "CONSTFLOAT(0.01,25)"
+<penalty> ::= "'l1', solver='saga'"  | "'l2', solver='sag'"
+<loss_passive_agressive> ::= "'hinge'" | "'squared_hinge'"
+#<solver_linear> ::= "'saga'" | "'liblinear'"
+
+
+
+<RANDOM_STATE> ::= "42"
+
