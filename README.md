@@ -6,9 +6,9 @@ This library is intended to be used in the search for hard voting ensembles. Bas
 
 In this current version, for proper use, it is recommended to install the library in the Anaconda package.
 
-In addition the use of the py-xgboost library is observed as to give a more stable execution in this library.
+In addition the use of the py-xgboost implementation in the Anaconda Package is observed as to give a more stable execution in the AUTOCVE.
 
-Example of usage:
+## Usage:
 
 ```
 from AUTOCVE.AUTOCVE import AUTOCVEClassifier
@@ -32,5 +32,5 @@ print("Ensemble size: "+str(len(best_voting_ensemble.estimators)))
 
 best_voting_ensemble.fit(X_train, y_train)
 print("Train Score: {:.2f}".format(best_voting_ensemble.score(X_train, y_train)))
-print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test))))
+print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test)))
 ```
