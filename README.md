@@ -1,6 +1,6 @@
 # AUTOCVE
 
-This library is intended to be used for allows the search for voting ensembles. Based on a coevolutionary framework, it turns possible to testing multiple ensembles configurations without repetitive training and test procedure of its components.
+This library is intended to be used in the search for hard voting ensembles. Based on a coevolutionary framework, it turns possible to testing multiple ensembles configurations without repetitive training and test procedure of its components.
 
 
 
@@ -12,23 +12,25 @@ Example of usage:
 
 ```
 from AUTOCVE.AUTOCVE import AUTOCVEClassifier
-from sklearn.model_selection import cross_validate
+from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_digits
 
 digits=load_digits()
 X = digits.data
 y = digits.target
 
-autocve=AUTOCVEClassifier(generations=5, grammar='grammarTPOT')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-autocve.optimize(X,y, subsample_data=0.5)
+autocve=AUTOCVEClassifier(generations=100, grammar='grammarTPOT', n_jobs=-1)
+
+autocve.optimize(X_train, y_train, subsample_data=1.0)
 
 print("Best ensemble")
-best_voting_ensemble=p.get_best_voting_ensemble()
+best_voting_ensemble=autocve.get_best_voting_ensemble()
 print(best_voting_ensemble.estimators)
 print("Ensemble size: "+str(len(best_voting_ensemble.estimators)))
 
-cv_results=cross_validate(best_voting_ensemble, X, y)
-print("Train Score: "+str(cv_results["train_score"].mean()))
-print("Test Score: "+str(cv_results["test_score"].mean()))
+best_voting_ensemble.fit(X_train, y_train)
+print("Train Score: {:.2f}".format(best_voting_ensemble.score(X_train, y_train)))
+print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test))))
 ```
