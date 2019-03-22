@@ -2,6 +2,8 @@
 
 This library is intended to be used in the search for hard voting ensembles. Based on a coevolutionary framework, it turns possible to testing multiple ensembles configurations without repetitive training and test procedure of its components.
 
+### Currently only classification tasks are available! Regression tasks are intended to be put in work soon.
+
 ## Prerequisites
 
 In this current version, for proper use, it is recommended to install the library in the Anaconda package, since almost all dependencies are met in a fresh install. 
@@ -52,10 +54,10 @@ print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test)))
 | Function      | Description |
 | ------------- |-------------| 
 | optimize      | Optimize pipelines to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise). |
-| get_best_voting_ensemble     | Get the best ensemble produced in the ensemble population defined in the last generation. |
+| get_best_voting_ensemble     | Get the best ensemble produced in the ensemble population defined in the last generation (option recomended). |
 | get_best_pipeline      | Get the pipeline with higher score in the last generation. |
-| get_voting_ensemble_elite      | Get the ensemble produced by the solutions with higher score defined (definide by elite_portion in percentage) in the last generation. |
-| get_voting_ensemble_all      | Get the ensemble produced by all solutions defined in the last generation. |
+| get_voting_ensemble_elite      | Get the ensemble compound by the 10% pipelines with higher score defined in the last generation. |
+| get_voting_ensemble_all      | Get the ensemble compound by all the pipelines defined in the last generation. |
 | get_grammar      | Get as text the grammar used in the optimization procedure. |
 | get_parameters      | Get as text the parameters used in the optimization procedure. |
 
