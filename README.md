@@ -1,8 +1,13 @@
-# AUTOCVE
+# AUTOCVE 
+
 
 This library is intended to be used in the search for hard voting ensembles. Based on a coevolutionary framework, it turns possible to testing multiple ensembles configurations without repetitive training and test procedure of its components.
 
-### Currently only classification tasks are available! Regression tasks are intended to be put in work soon.
+The ensembles created are based on the [Voting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html) class. In the default version, several methods implemented in the [scikit-learn](https://github.com/scikit-learn/scikit-learn) package can be used in the final ensemble as well as  the XGBClassifier of the [XGBoost](https://github.com/dmlc/xgboost) library. In addition, other [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) compatible libraries can be added in a custom grammar. 
+
+### Currently only classification tasks are available! Regression tasks coming soon.
+
+#### GECCO experiment scripts can be found in the [AUTOCVE_GECCO19](https://github.com/celiolarcher/Experiments_GECCO19) repository.
 
 ## Prerequisites
 
@@ -91,7 +96,7 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 
 ## Contributions
 
-Any suggestions are welcome to improve this work.
+Any suggestions are welcome to improve this work and should be directed to Celio Larcher Junior (celiolarcher@gmail.com).
 
 Despite this, as this work is part of my PhD thesis, the pull request acceptance is limited to simple fixes. 
 
