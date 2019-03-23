@@ -53,8 +53,8 @@ print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test)))
 
 | Function      | Description |
 | ------------- |-------------| 
-| optimize      | Optimize pipelines to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise). |
-| get_best_voting_ensemble     | Get the best ensemble produced in the ensemble population defined in the last generation (option recomended). |
+| optimize      | Optimize an ensemble to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise). |
+| get_best_voting_ensemble     | Get the best ensemble produced in the optimization procedure (option recomended). |
 | get_best_pipeline      | Get the pipeline with higher score in the last generation. |
 | get_voting_ensemble_elite      | Get the ensemble compound by the 10% pipelines with higher score defined in the last generation. |
 | get_voting_ensemble_all      | Get the ensemble compound by all the pipelines defined in the last generation. |
@@ -69,9 +69,9 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | Keyword       | Description|
 | ------------- |-------------| 
 | random_state                  | seed used in the optimization process | 
-| n_jobs                  | number of jobs scheduled in parallel in the evaluation of the a component   | 
-| max_pipeline_time_secs        | maximum time allowed to a single training and test procedure of the cross-validation (None is not bounded)  |
-| max_evolution_time_sec        | maximum time allowed to the whole evolutionary procedure to run  | 
+| n_jobs                  | number of jobs scheduled in parallel in the evaluation of components   | 
+| max_pipeline_time_secs        | maximum time allowed to a single training and test procedure of the cross-validation (None means not time bounded)  |
+| max_evolution_time_sec        | maximum time allowed to the whole evolutionary procedure to run (0 means not time bounded)| 
 | grammar  | the grammar option or path to a custom grammar used in the Context Free Genetic Program algorithm (used to specfy the algorithms) | 
 | generations  | number of generations performed      | 
 | population_size_components  | size of the population of components used in the ensembles | 
