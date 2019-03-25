@@ -45,12 +45,12 @@ AUTOCVEClass::~AUTOCVEClass(){
 int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, double subsample_data){
     srand(this->seed);
 
-    printf("LOADING DATASET\n");
+    PySys_WriteStdout("LOADING DATASET\n");
 
     if(!this->interface->load_dataset(data_X, data_y, subsample_data))
         return NULL;
 
-    printf("LOADED DATASET\n");
+    PySys_WriteStdout("LOADED DATASET\n");
 
     if(this->grammar)
         delete this->grammar;
@@ -84,7 +84,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    printf("GENERATION %d\n",0);
+    PySys_WriteStdout("GENERATION %d\n",0);
     this->population=new Population(this->interface, this->size_pop_components, this->elite_portion_components, this->mut_rate_components, this->cross_rate_components);
     this->population_ensemble=new PopulationEnsemble(this->size_pop_ensemble,this->size_pop_components,this->elite_portion_ensemble,this->mut_rate_ensemble,this->cross_rate_ensemble);
 
@@ -110,7 +110,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
 
     double generation_time=0;
     for(int i=0;i<this->generations;i++){
-        printf("GENERATION %d (%d secs)\n",i+1,(int)(end.tv_sec-start.tv_sec));
+        PySys_WriteStdout("GENERATION %d (%d secs)\n",i+1,(int)(end.tv_sec-start.tv_sec));
 
         if(!(control_flag=this->population->next_generation_selection_similarity(this->population_ensemble)))
             return NULL;
@@ -133,7 +133,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
             break;
     }
 
-    printf("END PROCESS (%d secs)\n",(int)(end.tv_sec-start.tv_sec));
+    PySys_WriteStdout("END PROCESS (%d secs)\n",(int)(end.tv_sec-start.tv_sec));
 
     evolution_log.close();
     matrix_sim_log.close();
@@ -207,9 +207,6 @@ char *AUTOCVEClass::get_parameters_char(){
     sprintf(buffer, "%d", this->size_pop_components);
     parameters=char_concat(char_concat(parameters, ", population_size_components: "), buffer);
 
-    sprintf(buffer, "%.2f", this->elite_portion_components);
-    parameters=char_concat(char_concat(parameters, ", elite_portion_components: "), buffer);
-
     sprintf(buffer, "%.2f", this->mut_rate_components);
     parameters=char_concat(char_concat(parameters, ", mutation_rate_components: "), buffer);
 
@@ -218,9 +215,6 @@ char *AUTOCVEClass::get_parameters_char(){
 
     sprintf(buffer, "%d", this->size_pop_ensemble);
     parameters=char_concat(char_concat(parameters, ", population_size_ensemble: "), buffer);
-
-    sprintf(buffer, "%.2f", this->elite_portion_ensemble);
-    parameters=char_concat(char_concat(parameters, ", elite_portion_ensemble: "), buffer);
 
     sprintf(buffer, "%.2f", this->mut_rate_ensemble);
     parameters=char_concat(char_concat(parameters, ", mutation_rate_ensemble: "), buffer);
