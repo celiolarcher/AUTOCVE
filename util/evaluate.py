@@ -1,7 +1,8 @@
 from sklearn.model_selection import StratifiedKFold
-from sklearn.externals.joblib import Parallel, delayed
-from sklearn.externals.joblib import dump, load
+from joblib import Parallel, delayed
+from joblib import dump, load
 from .joblib_silent_timeout import ParallelSilentTimeout
+from joblib.externals.loky.process_executor import TerminatedWorkerError
 from functools import partial
 from .make_pipeline import make_pipeline_str
 from multiprocessing import TimeoutError
@@ -76,25 +77,39 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
 
 
 
-            result_pipeline=ParallelSilentTimeout(n_jobs=n_jobs, backend="multiprocessing",timeout=timeout_pip_sec,batch_size=1)(delayed(evaluate_pipe_timeout)(pipeline_str, X_train, X_test, y[train_index], y[test_index]) for pipeline_str in pipelines_population) #batch_size as 1, since the TimeoutError is attributed just for the pipeline which reach the timeout (in batch_size bigger than one, all pipelines in batch receive the TimeoutError value)
+            result_pipeline=ParallelSilentTimeout(n_jobs=n_jobs, backend="loky",timeout=timeout_pip_sec)(delayed(evaluate_pipe_timeout)(pipeline_str, X_train, X_test, y[train_index], y[test_index]) for pipeline_str in pipelines_population if pipeline_str is not None) 
+
             metric_population_cv=[]
             predict_population_cv=[]
 
-            for pipe_id, result_solution in enumerate(result_pipeline):
-                if isinstance(result_solution,TimeoutError):
-                    if verbose>0:
-                        print("Timeout reach for pipeline: "+str(pipelines_population[pipe_id]))        
+            next_pipe=iter(result_pipeline)
+            for pipe_id, pipe_str in enumerate(pipelines_population):
+                if pipe_str is None:
                     metric_population_cv.append(None)
                     predict_population_cv.append(None)
-                    pipelines_population[pipe_id]=None
-                elif(result_solution is None):
-                    metric_population_cv.append(None)
-                    predict_population_cv.append(None)
-                    pipelines_population[pipe_id]=None
                 else:
-                    metric_population_cv.append([scoring(ScorerHandler(result_solution), None, y[test_index])])
-                    predict_population_cv.append(result_solution) 
-
+                    result_solution=next(next_pipe)
+                    if isinstance(result_solution,TimeoutError):
+                        if verbose>0:
+                            print("Timeout reach for pipeline: "+str(pipe_str))        
+                        metric_population_cv.append(None)
+                        predict_population_cv.append(None)
+                        pipelines_population[pipe_id]=None
+                    elif isinstance(result_solution,TerminatedWorkerError):
+                        if verbose>0:
+                            print("Worker error for pipeline: "+str(pipe_str))        
+                        metric_population_cv.append(None)
+                        predict_population_cv.append(None)
+                        pipelines_population[pipe_id]=None
+                    elif(result_solution is None):
+                        metric_population_cv.append(None)
+                        predict_population_cv.append(None)
+                        pipelines_population[pipe_id]=None
+                    else:
+                        metric_population_cv.append([scoring(ScorerHandler(result_solution), None, y[test_index])])
+                        predict_population_cv.append(result_solution) 
+            
+            del result_pipeline
 
             if len(metric_population)==0:
                 metric_population=metric_population_cv

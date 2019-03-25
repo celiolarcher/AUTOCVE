@@ -1,10 +1,34 @@
-from sklearn.externals.joblib import Parallel
+from joblib import Parallel
 from multiprocessing import TimeoutError
-from sklearn.externals.joblib.my_exceptions import TransportableException
+from joblib.my_exceptions import TransportableException
+from joblib.externals.loky.process_executor import TerminatedWorkerError
 
 import time
 
 class ParallelSilentTimeout(Parallel):
+    def __init__(self, *args, **kwargs):
+        if 'batch_size' in kwargs:
+             print("Warning: batch_size is set to 1 in ParallelSilentTimeout, since it's required to its correct operation.")
+        kwargs['batch_size']=1
+        super(ParallelSilentTimeout, self).__init__(*args, **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        backend = self._backend
+        managed_backend = self._managed_backend
+
+        if (backend is not None and hasattr(backend, 'abort_everything')):
+             try:
+                 self._managed_backend=False
+                 output = super(ParallelSilentTimeout, self).__call__(*args, **kwargs)
+             finally:
+                 if managed_backend:
+                      self._backend.abort_everything(ensure_ready=False) #abort_everything allows to shutdown the workers in the loky backend
+                 self._managed_backend = managed_backend
+        else:
+             output = super(ParallelSilentTimeout, self).__call__(*args, **kwargs)
+
+        return output
+
     def retrieve(self):
         self._output = list()
         while self._iterating or len(self._jobs) > 0:
@@ -26,9 +50,8 @@ class ParallelSilentTimeout(Parallel):
                     self._output.extend(job.get())
 
             except TimeoutError as exception:
-                # create equal number of TimeOut placeholder results to
-                # batch size of callback
-                cb_batch_size = job._callback.batch_size
+                # batch_size fixed as 1, since the TimeoutError is attributed just for the pipeline which reach the timeout (in batch_size bigger than one, all pipelines in a batch receive the TimeoutError value)
+                cb_batch_size = 1
                 self._output.extend(cb_batch_size * [TimeoutError()])
                 #self._output.extend([None])
                 # need to dispatch potential next task because
@@ -36,6 +59,15 @@ class ParallelSilentTimeout(Parallel):
                 if self._original_iterator is not None:
                     self.dispatch_next()
 
+            except TerminatedWorkerError as exception:
+                # batch_size fixed as 1, since the TimeoutError is attributed just for the pipeline which reach the timeout (in batch_size bigger than one, all pipelines in a batch receive the TimeoutError value)
+                cb_batch_size = 1
+                self._output.extend(cb_batch_size * [TerminatedWorkerError()])
+                #self._output.extend([None])
+                # need to dispatch potential next task because
+                # batch completion callback never got executed
+                if self._original_iterator is not None:
+                    self.dispatch_next()
 
             except BaseException as exception:
                 # Note: we catch any BaseException instead of just Exception

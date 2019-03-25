@@ -15,8 +15,6 @@ In this current version, for proper use, it is recommended to install the librar
 
 This library has not yet been tested on a Windows installation, so correct functionality is not guaranteed. 
 
-In addition the use of the py-xgboost implementation in the Anaconda Package is observed as to give a more stable execution to AUTOCVE.
-
 ## Installing
 
 Just type the following commands:
