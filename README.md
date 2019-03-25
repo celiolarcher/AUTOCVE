@@ -86,10 +86,6 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | scoring  | score option used to evaluate the pipelines (sklearn compatible) | 
 | cv_folds  | number of folds in the cross validation procedure  | 
 | verbose  | verbose option | 
-| elite_portion_components  | deprecated | 
-| elite_portion_ensemble  | deprecated | 
-
-
 
 
 ## Contributions
