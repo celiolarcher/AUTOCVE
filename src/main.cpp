@@ -25,9 +25,9 @@ static int PyAUTOCVE_init(PyAUTOCVE *self, PyObject *args, PyObject *kwargs){
     double elite_portion_ensemble=0.1, mut_rate_ensemble=0.1, cross_rate_ensemble=0.9;
     int cv_folds=5;
 
-    static char *keywords[]={"random_state","n_jobs","max_pipeline_time_secs","max_evolution_time_secs","grammar","generations","population_size_components","elite_portion_components","mutation_rate_components","crossover_rate_components","population_size_ensemble","elite_portion_ensemble","mutation_rate_ensemble","crossover_rate_ensemble","scoring","cv_folds","verbose", NULL}; //NULL-terminated array
+    static char *keywords[]={"random_state","n_jobs","max_pipeline_time_secs","max_evolution_time_secs","grammar","generations","population_size_components","mutation_rate_components","crossover_rate_components","population_size_ensemble","mutation_rate_ensemble","crossover_rate_ensemble","scoring","cv_folds","verbose", NULL}; //NULL-terminated array
 
-    if(!PyArg_ParseTupleAndKeywords(args,kwargs,"|$iiOisiidddidddOii",keywords, &seed, &n_jobs, &timeout_pip_sec, &timeout_evolution_process_sec, &grammar_file, &generations, &size_pop_components, &elite_portion_components, &mut_rate_components, &cross_rate_components, &size_pop_ensemble, &elite_portion_ensemble, &mut_rate_ensemble, &cross_rate_ensemble, &scoring, &cv_folds, &verbose)) //Function and arguments |$ before keyword args
+    if(!PyArg_ParseTupleAndKeywords(args,kwargs,"|$iiOisiiddiddOii",keywords, &seed, &n_jobs, &timeout_pip_sec, &timeout_evolution_process_sec, &grammar_file, &generations, &size_pop_components, &mut_rate_components, &cross_rate_components, &size_pop_ensemble, &mut_rate_ensemble, &cross_rate_ensemble, &scoring, &cv_folds, &verbose)) //Function and arguments |$ before keyword args
         return NULL;
 
     if(timeout_pip_sec==NULL)
@@ -193,11 +193,11 @@ static PyObject *PyAUTOCVE_get_parameters_char(PyAUTOCVE* self, PyObject* args){
 
 
 static PyMethodDef PyAUTOCVE_methods[] = {
-    { "optimize", (PyCFunction)PyAUTOCVE_optimize,METH_VARARGS | METH_KEYWORDS,"Optimize pipelines to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise)." },
-    { "get_best_voting_ensemble", (PyCFunction)PyAUTOCVE_get_voting_ensemble_best_mask,METH_VARARGS,"Get the best ensemble produced in the ensemble population defined in the last generation of the evolutionary procedure." },
-    { "get_best_pipeline", (PyCFunction)PyAUTOCVE_get_best,METH_VARARGS,"Get the pipeline with higher score in the last generation of population of components." },
-    { "get_voting_ensemble_elite", (PyCFunction)PyAUTOCVE_get_voting_ensemble_elite,METH_VARARGS,"Get the ensemble produced by the solutions with higher score defined (definide by elite_portion in percentage) in the last generation of the population of components." },
-    { "get_voting_ensemble_all", (PyCFunction)PyAUTOCVE_get_voting_ensemble_all,METH_VARARGS,"Get the ensemble produced by all solutions defined in the last generation of the population of components." },
+    { "optimize", (PyCFunction)PyAUTOCVE_optimize,METH_VARARGS | METH_KEYWORDS,"Optimize an ensemble to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise)." },
+    { "get_best_voting_ensemble", (PyCFunction)PyAUTOCVE_get_voting_ensemble_best_mask,METH_VARARGS,"Get the best ensemble produced in the optimization procedure (option recomended)." },
+    { "get_best_pipeline", (PyCFunction)PyAUTOCVE_get_best,METH_VARARGS,"Get the pipeline with higher score in the last generation." },
+    { "get_voting_ensemble_elite", (PyCFunction)PyAUTOCVE_get_voting_ensemble_elite,METH_VARARGS,"Get the ensemble compound by the 10% pipelines with higher score defined in the last generation." },
+    { "get_voting_ensemble_all", (PyCFunction)PyAUTOCVE_get_voting_ensemble_all,METH_VARARGS,"Get the ensemble compound by all the pipelines defined in the last generation." },
     { "get_grammar", (PyCFunction)PyAUTOCVE_get_grammar_char,METH_VARARGS,"Get as text the grammar used in the optimization procedure." },
     { "get_parameters", (PyCFunction)PyAUTOCVE_get_parameters_char,METH_VARARGS,"Get as text the parameters used in the optimization procedure." },
     {NULL}  /* Sentinel */
