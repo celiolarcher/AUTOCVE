@@ -30,7 +30,6 @@ class Population{
     public: int init_population(Grammar* grammar, PopulationEnsemble  *population_ensemble);
     public: int next_generation_selection_similarity(PopulationEnsemble *population_ensemble);
     public: void write_population(int generation, std::ofstream *evolution_log);
-    private: int evaluate_next_gen();
     private: int evaluate_next_gen_cv(int population_as_buffer);
     private: int evaluate_ensemble_next_gen(PopulationEnsemble *population_ensemble, int *map_next_gen_population, int changed_index);
     private: int evaluate_ensemble_population(PopulationEnsemble *population_ensemble);

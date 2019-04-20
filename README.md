@@ -57,7 +57,7 @@ print("Test Score: {:.2f}".format(best_voting_ensemble.score(X_test, y_test)))
 | Function      | Description |
 | ------------- |-------------| 
 | optimize      | Optimize an ensemble to the (X,y) base. X and y expect to be numeric (used pandas.get_dummies otherwise). |
-| get_best_voting_ensemble     | Get the best ensemble produced in the optimization procedure (option recomended). |
+| get_best_voting_ensemble     | Get the best ensemble produced in the optimization procedure (recommended option). |
 | get_best_pipeline      | Get the pipeline with higher score in the last generation. |
 | get_voting_ensemble_elite      | Get the ensemble compound by the 10% pipelines with higher score defined in the last generation. |
 | get_voting_ensemble_all      | Get the ensemble compound by all the pipelines defined in the last generation. |
