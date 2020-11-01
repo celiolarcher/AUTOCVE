@@ -5,7 +5,9 @@ This library is intended to be used in the search for hard voting ensembles. Bas
 
 The ensembles created are based on the [Voting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html) class. In the default version, several methods implemented in the [scikit-learn](https://github.com/scikit-learn/scikit-learn) package can be used on the final ensemble as well as  the XGBClassifier of the [XGBoost](https://github.com/dmlc/xgboost) library. In addition, other [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) compatible libraries can be added in a custom grammar. 
 
-### Currently only classification tasks are available (regression tasks coming soon)!
+Yet, the Auto-CVE uses the dynamic sampling holdout as an option to accelerate the evaluation of pipelines, which can make the search procedure orders of magnitude faster than using the regular cross-validation.
+
+### Currently only classification tasks are available (although regression tasks are planned to be included as well).
 
 #### GECCO experiment scripts can be found in the [AUTOCVE_GECCO19](https://github.com/celiolarcher/Experiments_GECCO19) repository.
 
@@ -22,6 +24,7 @@ Just type the following commands:
 ```
 git clone git@github.com:celiolarcher/AUTOCVE.git
 cd AUTOCVE
+pip install -r requirements.txt
 pip install .
 ```
 
@@ -72,9 +75,9 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | Keyword       | Description|
 | ------------- |-------------| 
 | random_state                  | seed used in the optimization process | 
-| n_jobs                  | number of jobs scheduled in parallel in the evaluation of components   | 
+| n_jobs                  | number of jobs scheduled in parallel in the evaluation of components  | 
 | max_pipeline_time_secs        | maximum time allowed to a single training and test procedure of the cross-validation (None means not time bounded)  |
-| max_evolution_time_sec        | maximum time allowed to the whole evolutionary procedure to run (0 means not time bounded)| 
+| max_evolution_time_sec        | maximum time allowed to the whole evolutionary procedure to run (0 means not time bounded) | 
 | grammar  | the grammar option or path to a custom grammar used in the Context Free Genetic Program algorithm (used to specfy the algorithms) | 
 | generations  | number of generations performed      | 
 | population_size_components  | size of the population of components used in the ensembles | 
@@ -84,7 +87,10 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | mutation_rate_ensemble  | mutation rate of the population of ensembles | 
 | crossover_rate_ensemble  | crossover rate of the population of ensembles | 
 | scoring  | score option used to evaluate the pipelines (sklearn compatible) | 
+| cv_evaluation_mode | True to evaluate ensembles using cross-validation and False using dynamic sampling holdout |
 | cv_folds  | number of folds in the cross validation procedure  | 
+| test_size | ratio of database used to evaluate models when using in dynamic sampling holdout |
+| evolution_steps_after_cv | number of generations performed in ensemble population after cross-validation when using dynamic sampling holdout |
 | verbose  | verbose option | 
 
 
