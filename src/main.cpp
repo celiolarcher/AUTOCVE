@@ -23,11 +23,14 @@ static int PyAUTOCVE_init(PyAUTOCVE *self, PyObject *args, PyObject *kwargs){
     char *grammar_file="grammarTPOT";
     double elite_portion_components=0.1, mut_rate_components=0.9, cross_rate_components=0.9;
     double elite_portion_ensemble=0.1, mut_rate_ensemble=0.1, cross_rate_ensemble=0.9;
+    int cv_evaluation=1;
     int cv_folds=5;
+    double test_size=0.3;
+    int evolution_steps_after_cv=10;
 
-    static char *keywords[]={"random_state","n_jobs","max_pipeline_time_secs","max_evolution_time_secs","grammar","generations","population_size_components","mutation_rate_components","crossover_rate_components","population_size_ensemble","mutation_rate_ensemble","crossover_rate_ensemble","scoring","cv_folds","verbose", NULL}; //NULL-terminated array
+    static char *keywords[]={"random_state","n_jobs","max_pipeline_time_secs","max_evolution_time_secs","grammar","generations","population_size_components","mutation_rate_components","crossover_rate_components","population_size_ensemble","mutation_rate_ensemble","crossover_rate_ensemble","scoring","cv_evaluation_mode","cv_folds","test_size","evolution_steps_after_cv", "verbose", NULL}; //NULL-terminated array
 
-    if(!PyArg_ParseTupleAndKeywords(args,kwargs,"|$iiOisiiddiddOii",keywords, &seed, &n_jobs, &timeout_pip_sec, &timeout_evolution_process_sec, &grammar_file, &generations, &size_pop_components, &mut_rate_components, &cross_rate_components, &size_pop_ensemble, &mut_rate_ensemble, &cross_rate_ensemble, &scoring, &cv_folds, &verbose)) //Function and arguments |$ before keyword args
+    if(!PyArg_ParseTupleAndKeywords(args,kwargs,"|$iiOisiiddiddOpidii",keywords, &seed, &n_jobs, &timeout_pip_sec, &timeout_evolution_process_sec, &grammar_file, &generations, &size_pop_components, &mut_rate_components, &cross_rate_components, &size_pop_ensemble, &mut_rate_ensemble, &cross_rate_ensemble, &scoring, &cv_evaluation, &cv_folds, &test_size, &evolution_steps_after_cv, &verbose)) //Function and arguments |$ before keyword args
         return NULL;
 
     if(timeout_pip_sec==NULL)
@@ -48,7 +51,7 @@ static int PyAUTOCVE_init(PyAUTOCVE *self, PyObject *args, PyObject *kwargs){
         delete self->ptr_autocve;
 
     try{
-        self->ptr_autocve=new AUTOCVEClass(seed, n_jobs, timeout_pip_sec, timeout_evolution_process_sec, grammar_file, generations, size_pop_components, elite_portion_components, mut_rate_components, cross_rate_components, size_pop_ensemble, elite_portion_ensemble, mut_rate_ensemble, cross_rate_ensemble, scoring, cv_folds, verbose);
+        self->ptr_autocve=new AUTOCVEClass(seed, n_jobs, timeout_pip_sec, timeout_evolution_process_sec, grammar_file, generations, size_pop_components, elite_portion_components, mut_rate_components, cross_rate_components, size_pop_ensemble, elite_portion_ensemble, mut_rate_ensemble, cross_rate_ensemble, scoring, cv_evaluation, cv_folds, test_size, evolution_steps_after_cv, verbose);
     }catch(const char *e){
         PyErr_SetString(PyExc_Exception, e);
         return NULL;
@@ -70,16 +73,20 @@ static PyObject *PyAUTOCVE_optimize(PyAUTOCVE *self, PyObject *args, PyObject *k
 
     static char *keywords[]={"X","y","subsample_data", NULL}; //NULL-terminated array
 
+    int return_flag;
 
     if(!PyArg_ParseTupleAndKeywords(args,kwargs,"OO|$d",keywords ,&data_X, &data_y, &subsample_data)) //Function and arguments |$ before keyword args
         return NULL;
     try{
-        if(!self->ptr_autocve->run_genetic_programming(data_X,data_y,subsample_data))
+        if(!(return_flag = self->ptr_autocve->run_genetic_programming(data_X,data_y,subsample_data)))
             return NULL;
     }catch(const char *e){
         PyErr_SetString(PyExc_Exception, e);
         return NULL;
     }
+
+    if(return_flag==-1)
+        return Py_BuildValue("i",0);
 
     return Py_BuildValue("i",1);
 }
@@ -217,7 +224,6 @@ static struct PyMethodDef AUTOCVEMethods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-//#if PY_MAJOR_VERSION >= 3
 
 static PyModuleDef AUTOCVE_module = {
     PyModuleDef_HEAD_INIT,
@@ -241,7 +247,6 @@ PyMODINIT_FUNC PyInit_AUTOCVE(void){
     PyAUTOCVEType.tp_flags=Py_TPFLAGS_DEFAULT;
     PyAUTOCVEType.tp_doc="AUTOCVE Classifier";
     PyAUTOCVEType.tp_methods=PyAUTOCVE_methods;
-    //~ PyAUTOCVEType.tp_members=Noddy_members;
     PyAUTOCVEType.tp_init=(initproc)PyAUTOCVE_init;
 
     if (PyType_Ready(&PyAUTOCVEType) < 0)

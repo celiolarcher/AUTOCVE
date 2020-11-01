@@ -35,24 +35,35 @@ class ScorerHandler():
         return self.y_pred
 
 
-def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec, N_SPLITS=5, verbose=1, RANDOM_STATE=42):
+def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec, split=None, N_SPLITS=5, verbose=1, TEST_SIZE=0.3, RANDOM_STATE=42):
     try:
         global y_last_test_set
         y_last_test_set=None
 
-        list_train_index=[]
-        list_test_index=[]
-        y_last_test_set=[]
-        split=StratifiedKFold(n_splits=N_SPLITS,random_state=RANDOM_STATE)
-        for train_index, test_index in split.split(X,y):
-            list_train_index.append(train_index)
-            list_test_index.append(test_index)
-            if len(y_last_test_set)==0:
-                y_last_test_set=y[test_index]
-            else:
-                y_last_test_set=np.concatenate([y_last_test_set,y[test_index]])
+        if split is None:
+            
+            list_train_index=[]
+            list_test_index=[]
+            y_last_test_set=[]
+            split=StratifiedKFold(n_splits=N_SPLITS,random_state=RANDOM_STATE)
 
-        predict_length=y.shape[0]
+            for train_index, test_index in split.split(X,y):
+                list_train_index.append(train_index)
+                list_test_index.append(test_index)
+                if len(y_last_test_set)==0:
+                    y_last_test_set=y[test_index]
+                else:
+                    y_last_test_set=np.concatenate([y_last_test_set,y[test_index]])
+
+            predict_length=y.shape[0]
+
+        else:
+
+            train_index, test_index=next(split)
+            list_train_index=[train_index]
+            list_test_index=[test_index]
+            y_last_test_set=y[test_index]
+            predict_length=len(test_index)
         
         pipelines_population=pipelines_population.split("|")
 
@@ -61,9 +72,12 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
         filename_train = os.path.join(temp_folder, 'autocve_X_train.mmap')
         filename_test = os.path.join(temp_folder, 'autocve_X_test.mmap')
 
+
         metric_population=[]
         predict_population=[]
+
         evaluate_pipe_timeout=partial(evaluate_solution,verbose=verbose)
+
         for train_index, test_index in zip(list_train_index,list_test_index):
 
             X_train=X[train_index,:]
@@ -83,6 +97,7 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
             predict_population_cv=[]
 
             next_pipe=iter(result_pipeline)
+
             for pipe_id, pipe_str in enumerate(pipelines_population):
                 if pipe_str is None:
                     metric_population_cv.append(None)
@@ -139,7 +154,8 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
     
 
 def evaluate_solution(pipeline_str, X_train, X_test, y_train, y_test,verbose=1):
-    pipeline=make_pipeline_str(pipeline_str,verbose) 
+    pipeline=make_pipeline_str(pipeline_str,verbose)
+    
     if pipeline is None:
         return None
     try:

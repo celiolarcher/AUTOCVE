@@ -21,9 +21,12 @@ class AUTOCVEClass{
     int seed; int n_jobs; PyObject* timeout_pip_sec; int timeout_evolution_process_sec; char *grammar_file; int generations; PyObject *scoring; int verbose; 
     int size_pop_components; double elite_portion_components; double mut_rate_components; double cross_rate_components;
     int size_pop_ensemble; double elite_portion_ensemble; double mut_rate_ensemble; double cross_rate_ensemble;  
+    int cv_evaluation;
     int cv_folds;
+    double test_size;
+    int evolution_steps_after_cv;
 
-    public: AUTOCVEClass(int seed, int n_jobs, PyObject* timeout_pip_sec, int timeout_evolution_process_sec, char *grammar_file, int generations, int size_pop_components, double elite_portion_components, double mut_rate_components, double cross_rate_components, int size_pop_ensemble, double elite_portion_ensemble, double mut_rate_ensemble, double cross_rate_ensemble, PyObject *scoring, int cv_folds, int verbose);
+    public: AUTOCVEClass(int seed, int n_jobs, PyObject* timeout_pip_sec, int timeout_evolution_process_sec, char *grammar_file, int generations, int size_pop_components, double elite_portion_components, double mut_rate_components, double cross_rate_components, int size_pop_ensemble, double elite_portion_ensemble, double mut_rate_ensemble, double cross_rate_ensemble, PyObject *scoring, int cv_evaluation, int cv_folds, double test_size, int evolution_steps_after_cv, int verbose);
     ~AUTOCVEClass();
     int run_genetic_programming(PyObject *data_X, PyObject *data_y, double subsample_data);
     PyObject *get_best_pipeline();

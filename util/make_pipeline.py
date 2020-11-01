@@ -36,13 +36,18 @@ def make_pipeline_str(pipeline_str,verbose=1):
                        imported_lib_attr=importlib.import_module(attr_imported[0])
                        attr_imported=getattr(imported_lib_attr,attr_imported[1])
                        kwargs_method[attr[0].strip()]=attr_imported
-    #                   setattr(method,attr[0],attr_imported)
 
                else:
                    kwargs_method[attr[0].strip()]=ast.literal_eval(attr[1])
 
-#           print(kwargs_method)
            method=getattr(imported_lib,method_call_str[1])(**kwargs_method)
+
+           if hasattr(method, 'n_jobs'):
+               method.n_jobs=1
+
+           if hasattr(method, 'nthread'):
+               method.nthread=1
+
            list_pip_methods.append(method)
         except  Exception as e:
            if verbose>0:

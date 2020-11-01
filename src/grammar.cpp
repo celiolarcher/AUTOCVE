@@ -9,7 +9,7 @@
 
 #define NTRIES 5 
 #define BUFFERSIZE 5000
-#define INTERVALCOUNT 5
+#define INTERVALCOUNT 20
 
 
 char *process_token(char* buffer, int *nonterminal);
