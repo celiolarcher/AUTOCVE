@@ -23,7 +23,7 @@ static int PyAUTOCVE_init(PyAUTOCVE *self, PyObject *args, PyObject *kwargs){
     char *grammar_file="grammarTPOT";
     double elite_portion_components=0.1, mut_rate_components=0.9, cross_rate_components=0.9;
     double elite_portion_ensemble=0.1, mut_rate_ensemble=0.1, cross_rate_ensemble=0.9;
-    int cv_evaluation=1;
+    int cv_evaluation=0;
     int cv_folds=5;
     double test_size=0.3;
     int evolution_steps_after_cv=10;
