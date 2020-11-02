@@ -95,7 +95,12 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 
 
 
-## BibTeX entry:
+## AutoCVE reference:
+
+If you use AutoCVE in an academic paper, please consider to cite:
+
+Celio H. N. Larcher and Helio J. C. Barbosa. 2019. Auto-CVE: a coevolutionary approach to evolve ensembles in automated machine learning. In Proceedings of the Genetic and Evolutionary Computation Conference (GECCO '19). Association for Computing Machinery, New York, NY, USA, 392–400. DOI:https://doi.org/10.1145/3321707.3321844
+
 
 ```
 @inproceedings{10.1145/3321707.3321844,
