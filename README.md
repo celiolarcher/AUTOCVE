@@ -9,7 +9,7 @@ Yet, the Auto-CVE uses the dynamic sampling holdout as an option to accelerate t
 
 ### Currently only classification tasks are available (although regression tasks are planned to be included as well).
 
-#### GECCO experiment scripts can be found in the [AUTOCVE_GECCO19](https://github.com/celiolarcher/Experiments_GECCO19) repository.
+#### Paper experiment scripts can be found in the [autocve_experiments](https://github.com/celiolarcher/autocve_experiments) repository.
 
 ## Prerequisites
 
@@ -94,10 +94,33 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | verbose  | verbose option | 
 
 
+
+## BibTeX entry:
+
+```
+@inproceedings{10.1145/3321707.3321844,
+    author = {Larcher, Celio H. N. and Barbosa, Helio J. C.},
+    title = {Auto-CVE: A Coevolutionary Approach to Evolve Ensembles in Automated Machine Learning},
+    year = {2019},
+    isbn = {9781450361118},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3321707.3321844},
+    doi = {10.1145/3321707.3321844},
+    booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference},
+    pages = {392–400},
+    numpages = {9},
+    keywords = {ensemble methods, coevolution, supervised learning, auto-ml},
+    location = {Prague, Czech Republic},
+    series = {GECCO'19}
+}
+```
+
+
 ## Contributions
 
 Any suggestions are welcome to improve this work and should be directed to Celio Larcher Junior (celiolarcher@gmail.com).
 
-Despite this, as this work is part of my PhD thesis, the pull request acceptance is limited to simple fixes. 
+Despite this, as this work is part of my Ph.D. thesis, the pull request acceptance is limited to simple fixes. 
 
-Also, although I try to continually improve this code, I can not guaranteed an immediate fix of any requested issue.
+Also, although I try to continually improve this code, I can not guarantee an immediate fix of any requested issue.
