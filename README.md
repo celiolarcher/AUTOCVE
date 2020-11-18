@@ -77,7 +77,7 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 | random_state                  | seed used in the optimization process | 
 | n_jobs                  | number of jobs scheduled in parallel in the evaluation of components  | 
 | max_pipeline_time_secs        | maximum time allowed to a single training and test procedure of the cross-validation (None means not time bounded)  |
-| max_evolution_time_sec        | maximum time allowed to the whole evolutionary procedure to run (0 means not time bounded) | 
+| max_evolution_time_secs        | maximum time allowed to the whole evolutionary procedure to run (0 means not time bounded) | 
 | grammar  | the grammar option or path to a custom grammar used in the Context Free Genetic Program algorithm (used to specfy the algorithms) | 
 | generations  | number of generations performed      | 
 | population_size_components  | size of the population of components used in the ensembles | 
