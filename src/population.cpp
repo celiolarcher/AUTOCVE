@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define INVALID_INDIVIDUAL_SCORE -1
+#define INVALID_INDIVIDUAL_SCORE -1e10
 #define INVALID_SIMILARITY_PREDICT -1
 #define MAX_SIM 1
 

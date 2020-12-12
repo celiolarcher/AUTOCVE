@@ -1,4 +1,5 @@
 from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import OneHotEncoder
 from joblib import Parallel, delayed
 from joblib import dump, load
 from .joblib_silent_timeout import ParallelSilentTimeout
@@ -24,15 +25,15 @@ def log_warning_output(message, category, filename, lineno, file=None, line=None
 warnings.showwarning=log_warning_output
 
 class ScorerHandler():
-    def __init__(self, y_pred):
+    def __init__(self, y_pred, ohe_proba):
         self.y_pred=y_pred
+        self.ohe_proba=ohe_proba
     def fit(self):
         pass
     def predict(self, X):
         return self.y_pred
     def predict_proba(self, X):
-        raise AttributeError("predict_proba is not implemented yet.")
-        return self.y_pred
+        return self.ohe_proba.transform(self.y_pred.reshape(-1,1)).toarray()
 
 
 def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec, split=None, N_SPLITS=5, verbose=1, TEST_SIZE=0.3, RANDOM_STATE=42):
@@ -121,7 +122,12 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
                         predict_population_cv.append(None)
                         pipelines_population[pipe_id]=None
                     else:
-                        metric_population_cv.append([scoring(ScorerHandler(result_solution), None, y[test_index])])
+                        if 'needs_proba=True' in scoring._factory_args() or "needs_threshold=True" in scoring._factory_args():
+                            ohe_proba = OneHotEncoder(handle_unknown='ignore').fit(y[test_index].reshape(-1,1))
+                        else:
+                            ohe_proba = None
+
+                        metric_population_cv.append([scoring(ScorerHandler(result_solution, ohe_proba=ohe_proba), None, y[test_index])])
                         predict_population_cv.append(result_solution) 
             
             del result_pipeline
@@ -179,4 +185,9 @@ def evaluate_solution(pipeline_str, X_train, X_test, y_train, y_test,verbose=1):
 
 
 def evaluate_predict_vector(predict_vector,scoring):
-    return scoring(ScorerHandler(predict_vector), None, y_last_test_set)
+    if 'needs_proba=True' in scoring._factory_args() or "needs_threshold=True" in scoring._factory_args():
+        ohe_proba = OneHotEncoder(handle_unknown='ignore').fit(y_last_test_set.reshape(-1,1))
+    else:
+        ohe_proba = None
+
+    return scoring(ScorerHandler(predict_vector, ohe_proba=ohe_proba), None, y_last_test_set)
