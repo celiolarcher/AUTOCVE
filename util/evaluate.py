@@ -46,7 +46,7 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
             list_train_index=[]
             list_test_index=[]
             y_last_test_set=[]
-            split=StratifiedKFold(n_splits=N_SPLITS,random_state=RANDOM_STATE)
+            split=StratifiedKFold(n_splits=N_SPLITS, shuffle=False)
 
             for train_index, test_index in split.split(X,y):
                 list_train_index.append(train_index)
@@ -142,9 +142,12 @@ def evaluate_population(pipelines_population,X,y,scoring,n_jobs,timeout_pip_sec,
 
         metric_population=[None if metrics is None else np.mean(metrics) for metrics in metric_population]
 
-        os.unlink(filename_train)
-        os.unlink(filename_test)
-        os.rmdir(temp_folder)
+        try:
+            os.unlink(filename_train)
+            os.unlink(filename_test)
+            os.rmdir(temp_folder)
+        except Exception as E:
+            pass
 
         return metric_population,predict_population, predict_length
 

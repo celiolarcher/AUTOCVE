@@ -108,7 +108,7 @@ int PopulationEnsemble::next_generation_similarity(Population *population_compon
     }
 
     this->sort_population();
-    int choice_mask[this->population_size];
+    int *choice_mask=(int*) malloc(sizeof(int)*this->population_size);
     for(int i=0;i<this->population_size;i++)choice_mask[i]=0;
 
     for(int i=0;i<this->next_gen_size;i+=2){
@@ -212,6 +212,7 @@ int PopulationEnsemble::next_generation_similarity(Population *population_compon
     this->sort_population();
 
     population_components->update_population_score(this);
+    free(choice_mask);
 
     return 1;
 }

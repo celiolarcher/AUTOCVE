@@ -8,8 +8,36 @@
 #include <stdlib.h>  
 #include <fstream>
 #include <string.h>
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
 #define BUFFER_SIZE 10000
+
+
+void get_instant_time(struct timeval *time_pointer){
+    #ifdef _WIN32
+        // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+        // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+        // until 00:00:00 January 1, 1970 
+        static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+
+        SYSTEMTIME  system_time;
+        FILETIME    file_time;
+        uint64_t    time;
+
+        GetSystemTime( &system_time );
+        SystemTimeToFileTime( &system_time, &file_time );
+        time =  ((uint64_t)file_time.dwLowDateTime )      ;
+        time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+        time_pointer->tv_sec  = (long) ((time - EPOCH) / 10000000L);
+        time_pointer->tv_usec = (long) (system_time.wMilliseconds * 1000);
+    #else
+        gettimeofday(time_pointer, NULL);
+    #endif
+}
+
 
 
 AUTOCVEClass::AUTOCVEClass(int seed, int n_jobs, PyObject* timeout_pip_sec, int timeout_evolution_process_sec, char *grammar_file, int generations, int size_pop_components, double elite_portion_components, double mut_rate_components, double cross_rate_components, int size_pop_ensemble, double elite_portion_ensemble, double mut_rate_ensemble, double cross_rate_ensemble,  PyObject *scoring, int cv_evaluation, int cv_folds, double test_size, int evolution_steps_after_cv, int verbose){
@@ -20,8 +48,8 @@ AUTOCVEClass::AUTOCVEClass(int seed, int n_jobs, PyObject* timeout_pip_sec, int 
     this->cv_evaluation=cv_evaluation;
     this->cv_folds=cv_folds;
     this->test_size=test_size;
-    this->population=NULL, this->grammar=NULL, this->interface=NULL, this->population_ensemble=NULL;
-    this->interface=new PythonInterface(this->n_jobs, this->timeout_pip_sec, this->scoring, this->cv_folds, this->test_size, this->verbose);
+    this->population=NULL, this->grammar=NULL, this->python_interface=NULL, this->population_ensemble=NULL;
+    this->python_interface=new PythonInterface(this->n_jobs, this->timeout_pip_sec, this->scoring, this->cv_folds, this->test_size, this->verbose);
 
     this->evolution_steps_after_cv = evolution_steps_after_cv;
 }
@@ -36,8 +64,8 @@ AUTOCVEClass::~AUTOCVEClass(){
     if(this->grammar)
         delete this->grammar;
 
-    if(this->interface)
-        delete this->interface;
+    if(this->python_interface)
+        delete this->python_interface;
 
     free(this->grammar_file);
    
@@ -51,7 +79,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
 
     PySys_WriteStdout("LOADING DATASET\n");
 
-    if(!this->interface->load_dataset(data_X, data_y, subsample_data, this->cv_evaluation))
+    if(!this->python_interface->load_dataset(data_X, data_y, subsample_data, this->cv_evaluation))
         return NULL;
 
     PySys_WriteStdout("LOADED DATASET\n");
@@ -65,7 +93,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
     if(this->population_ensemble)
         delete this->population_ensemble;
 
-    this->grammar=new Grammar(this->grammar_file,this->interface);
+    this->grammar=new Grammar(this->grammar_file,this->python_interface);
 
     std::ofstream evolution_log;
     evolution_log.open("evolution.log");
@@ -110,10 +138,10 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
 
 
     struct timeval start, end;
-    gettimeofday(&start, NULL);
+    get_instant_time(&start);
 
     PySys_WriteStdout("GENERATION %d\n",0);
-    this->population=new Population(this->interface, this->size_pop_components, this->elite_portion_components, this->mut_rate_components, this->cross_rate_components, this->cv_evaluation);
+    this->population=new Population(this->python_interface, this->size_pop_components, this->elite_portion_components, this->mut_rate_components, this->cross_rate_components, this->cv_evaluation);
     this->population_ensemble=new PopulationEnsemble(this->size_pop_ensemble,this->size_pop_components,this->elite_portion_ensemble,this->mut_rate_ensemble,this->cross_rate_ensemble);
 
     this->population_ensemble->init_population_random();
@@ -135,7 +163,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
 
     matrix_sim_next_gen_log<<"Generation;ID_solution;ID_solution;Similarity\n";
     
-    gettimeofday(&end, NULL);
+    get_instant_time(&end);
 
     evolution_ensemble_log<<"Generation;Time;ID_solution;Length;Score;Configuration\n";
     this->population_ensemble->write_population(0,(int)(end.tv_sec-start.tv_sec),&evolution_ensemble_log);
@@ -154,18 +182,18 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
             return NULL;
 
         struct timeval ensemble_pop_start;
-        gettimeofday(&ensemble_pop_start, NULL);
+        get_instant_time(&ensemble_pop_start);
         
         this->population_ensemble->next_generation_similarity(this->population, i+1, &competition_ensemble_log);
 
 
         struct timeval auxiliar_time;
-        gettimeofday(&auxiliar_time, NULL);
+        get_instant_time(&auxiliar_time);
         generation_time=auxiliar_time.tv_sec-end.tv_sec;
         double ensemble_pop_time = auxiliar_time.tv_sec - ensemble_pop_start.tv_sec;
 
 
-        gettimeofday(&end, NULL);
+        get_instant_time(&end);
         if(this->cv_evaluation){
             if(this->timeout_evolution_process_sec && (end.tv_sec-start.tv_sec)>=this->timeout_evolution_process_sec-generation_time) time_flag=0;
         }else{
@@ -187,7 +215,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
     
         int return_flag=this->population_ensemble->evaluate_score_cv(this->population);
 
-        gettimeofday(&end, NULL);
+        get_instant_time(&end);
 
         if(return_flag==-1)
             PySys_WriteStdout("WARNING: The process was stopped before the end of the cross-validation procedure! Best ensemble chosen by the evaluation of a holdout procedure\n");
@@ -201,7 +229,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
                 this->population->write_similarity_matrix(this->generations+j+1,&matrix_sim_log);
                 this->population_ensemble->write_population(this->generations+j+1,(int)(end.tv_sec-start.tv_sec),&evolution_ensemble_log);
 
-                gettimeofday(&end, NULL);
+                get_instant_time(&end);
             }
         }
     }
@@ -215,7 +243,7 @@ int AUTOCVEClass::run_genetic_programming(PyObject *data_X, PyObject *data_y, do
     competition_log.close();
     competition_ensemble_log.close();
 
-    if(!this->interface->unload_dataset())
+    if(!this->python_interface->unload_dataset())
         return NULL;
 
     if(control_flag==-1)
@@ -341,9 +369,20 @@ char* AUTOCVEClass::grammar_file_handler(char *grammar_file_param){
 
         grammar_file_return=(char*)malloc(sizeof(char)*(strlen(path_char)+1));
         strcpy(grammar_file_return,path_char);
-        char *last_bar=strrchr(grammar_file_return,'/');    
+        #ifdef _WIN32
+            char *last_bar=strrchr(grammar_file_return,'\\');    
+        #else
+            char *last_bar=strrchr(grammar_file_return,'/');    
+        #endif
+
         *last_bar='\0';
-        grammar_file_return=char_concat(grammar_file_return,"/grammar/");
+
+        #ifdef _WIN32
+            grammar_file_return=char_concat(grammar_file_return,"\\grammar\\");
+        #else
+            grammar_file_return=char_concat(grammar_file_return,"/grammar/");
+        #endif
+
         grammar_file_return=char_concat(grammar_file_return, grammar_file_param);
 
         Py_XDECREF(path);

@@ -17,7 +17,7 @@ class AUTOCVEClass{
     public: Population *population;
     PopulationEnsemble *population_ensemble;
     Grammar *grammar;
-    PythonInterface *interface;
+    PythonInterface *python_interface;
     int seed; int n_jobs; PyObject* timeout_pip_sec; int timeout_evolution_process_sec; char *grammar_file; int generations; PyObject *scoring; int verbose; 
     int size_pop_components; double elite_portion_components; double mut_rate_components; double cross_rate_components;
     int size_pop_ensemble; double elite_portion_ensemble; double mut_rate_ensemble; double cross_rate_ensemble;  
