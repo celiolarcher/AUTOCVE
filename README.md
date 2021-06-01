@@ -15,8 +15,6 @@ Yet, the Auto-CVE uses the dynamic sampling holdout as an option to accelerate t
 
 In this current version, for proper use, it is recommended to install the library in the Anaconda package, since almost all dependencies are met in a fresh install. 
 
-This library has not yet been tested on a Windows installation, so correct functionality is not guaranteed. 
-
 ## Installing
 
 Just type the following commands:
