@@ -97,7 +97,30 @@ All these keyword parameters can be set in the initialization of the AUTOCVE.
 
 ## AutoCVE reference:
 
-If you use AutoCVE in an academic paper, please consider to cite:
+If you use AutoCVE in an academic paper, please consider to one of these papers:
+
+
+Celio H. N. Larcher and Helio J. C. Barbosa. 2021. Evaluating Models with Dynamic Sampling Holdout. In Applications of Evolutionary Computation (Evostar '21).      Springer International Publishing, 729--744. DOI:https://doi.org/10.1007/978-3-030-72699-7_46
+
+
+```
+@inproceedings{10.1007/978-3-030-72699-7_46,
+  author = {Larcher, Celio H. N. and Barbosa, Helio J. C.},
+  title={Evaluating Models with Dynamic Sampling Holdout},
+  year={2021},
+  isbn={9783030726997}
+  publisher = {Springer International Publishing},
+  address={Cham},
+  url = {https://doi.org/10.1007/978-3-030-72699-7_46},
+  doi = {10.1007/978-3-030-72699-7_46},
+  booktitle={Applications of Evolutionary Computation},
+  pages={729--744},
+  numpages = {16},
+  keywords = {Auto-ML, Machine learning, Evolutionary algorithms},
+  location = {Seville, Spain},
+  series = {Evostar'21}
+}
+```
 
 Celio H. N. Larcher and Helio J. C. Barbosa. 2019. Auto-CVE: a coevolutionary approach to evolve ensembles in automated machine learning. In Proceedings of the Genetic and Evolutionary Computation Conference (GECCO '19). Association for Computing Machinery, New York, NY, USA, 392–400. DOI:https://doi.org/10.1145/3321707.3321844
 
@@ -120,6 +143,7 @@ Celio H. N. Larcher and Helio J. C. Barbosa. 2019. Auto-CVE: a coevolutionary ap
     series = {GECCO'19}
 }
 ```
+
 
 
 ## Contributions
