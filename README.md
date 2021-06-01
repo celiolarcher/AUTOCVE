@@ -106,7 +106,7 @@ Celio H. N. Larcher and Helio J. C. Barbosa. 2021. Evaluating Models with Dynami
   author = {Larcher, Celio H. N. and Barbosa, Helio J. C.},
   title={Evaluating Models with Dynamic Sampling Holdout},
   year={2021},
-  isbn={9783030726997}
+  isbn={9783030726997},
   publisher = {Springer International Publishing},
   address={Cham},
   url = {https://doi.org/10.1007/978-3-030-72699-7_46},
