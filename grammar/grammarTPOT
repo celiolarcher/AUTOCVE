@@ -49,7 +49,7 @@
 <EnsembleTree> ::= "xgboost/XGBClassifier(n_estimators=100, max_depth=" <max_depth> ", learning_rate=" <learning_rate> ", subsample=" <subsample> ", min_child_weight=" <min_child_weight> ", random_state=" <RANDOM_STATE> ", seed=" <RANDOM_STATE> ", nthread=1)"
 <min_child_weight> ::= "CONSTINT(1, 21)"
 
-<LinearClassifier> ::= "sklearn.linear_model/SGDClassifier(loss=" <loss_sgd> ", penalty='elasticnet', alpha=" <alpha_sgd> ", learning_rate=" <learning_rate_sgd> ",fit_intercept=" <fit_intercept> ", l1_ratio=" <l1_ratio> ", eta0=" <eta0> ", power_t=" <power_t> ")"
+<LinearClassifier> ::= "sklearn.linear_model/SGDClassifier(loss=" <loss_sgd> ", penalty='elasticnet', alpha=" <alpha_sgd> ", learning_rate=" <learning_rate_sgd> ",fit_intercept=" <fit_intercept> ", l1_ratio=" <l1_ratio> ", eta0=" <eta0> ", power_t=" <power_t> ", random_state=" <RANDOM_STATE> ")"
 <loss_sgd> ::= "'log'" | "'hinge'" | "'modified_huber'" | "'squared_hinge'" | "'perceptron'"
 <alpha_sgd> ::= "0.0" | "0.01" | "0.001"
 <learning_rate_sgd> ::= "'invscaling'" | "'constant'"
@@ -58,7 +58,7 @@
 <eta0> ::= "0.1" | "1.0" | "0.01"
 <power_t> ::= "0.0" | "0.1" | "0.5" | "1.0" | "10.0" | "50.0" | "100.0"
 
-<NonLinearClassifier> ::= "sklearn.neural_network/MLPClassifier(alpha=" <alpha_mlp> ", learning_rate_init=" <learning_rate> ")"
+<NonLinearClassifier> ::= "sklearn.neural_network/MLPClassifier(alpha=" <alpha_mlp> ", learning_rate_init=" <learning_rate> ", random_state=" <RANDOM_STATE> ")"
 <alpha_mlp> ::= "1e-4" | "1e-3" | "1e-2" | "1e-1"
 
 
